@@ -275,23 +275,30 @@ def _varintEncode(n):
 	# blocks
 	return b'\xfd' + _pack('<H', n)
 
+def _serialize_bitcoin_compact_size(size):
+	if size < 253:
+		data = _pack('B', numbyte)
+	elif size <= 0xffff:
+		data = _pack('B', 253)
+		data += _pack('<H', numbyte)
+	elif size <= 0xffffffff:
+		data = _pack('B', 254)
+		data += _pack('<I', numbyte)
+	else:
+		data = _pack('B', 255)
+		data += _pack('<Q', numbyte)
+	return data
+
+def _serialize_primecoin_multiplier(multiplier):
+	size = ceil(len(hex(multiplier).lstrip('0x')) / 2)
+	data = _serialize_bitcoin_compact_size(size)
+	data += _pack('<' + str(size) + 's', multiplier.to_bytes(size, byteorder='little'))
+	return data
+
 def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
 	data = data[:76]
 	data += _pack('!I', nonce)
-	numb = ceil(len(hex(multiplier).lstrip('0x')) / 2)
-	if numb < 253:
-		bytelen = 1
-	elif numb <= 0xffff:
-		bytelen = 2
-		data += _pack('B', 253)
-	elif numb <= 0xffffffff:
-		bytelen = 4
-		data += _pack('B', 254)
-	else:
-		bytelen = 8
-		data += _pack('B', 255)
-	data += _pack('<' + str(bytelen) + 's', numb.to_bytes(bytelen, byteorder='little'))
-	data += _pack('<' + str(numb) + 's', multiplier.to_bytes(numb, byteorder='little'))
+	data += _serialize_primecoin_multiplier(multiplier)
 	if foreign or ('submit/truncate' not in tmpl.mutations or extranonce):
 		data += _varintEncode(1 + len(tmpl.txns))
 		
