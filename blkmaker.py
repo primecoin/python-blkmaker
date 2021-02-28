@@ -277,7 +277,7 @@ def _varintEncode(n):
 def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
 	data = data[:76]
 	data += _pack('!I', nonce)
-	numbyte = (1 + len(hex(multiplier))) // 2 - 1
+	numb = (1 + len(hex(multiplier))) // 2 - 1
 	if numb < 253:
 		bytelen = 1
 	elif numb <= 0xffff:
