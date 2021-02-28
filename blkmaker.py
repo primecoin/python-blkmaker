@@ -11,9 +11,9 @@ from hashlib import sha256 as _sha256
 from struct import pack as _pack
 from time import time as _time
 
-from blktemplate import _Transaction, request as _request
+from .blktemplate import _Transaction, request as _request
 
-MAX_BLOCK_VERSION = 4
+MAX_BLOCK_VERSION = 2
 
 coinbase_size_limit = 100
 
@@ -274,10 +274,12 @@ def _varintEncode(n):
 	# blocks
 	return b'\xfd' + _pack('<H', n)
 
-def _assemble_submission2_internal(tmpl, data, extranonce, nonce, foreign):
+def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
 	data = data[:76]
 	data += _pack('!I', nonce)
-	
+	numb = 32
+	data += _pack('<1s', numb.to_bytes(1, byteorder='little'))
+	data += _pack('<' + str(numb) + 's', multiplier.to_bytes(numb, byteorder='little'))
 	if foreign or ('submit/truncate' not in tmpl.mutations or extranonce):
 		data += _varintEncode(1 + len(tmpl.txns))
 		
@@ -293,7 +295,7 @@ def _assemble_submission2_internal(tmpl, data, extranonce, nonce, foreign):
 	
 	return _b2a_hex(data).decode('ascii')
 
-def _assemble_submission2(tmpl, data, extranonce, dataid, nonce, foreign):
+def _assemble_submission2(tmpl, data, extranonce, dataid, nonce, multiplier, foreign):
 	if dataid:
 		if extranonce:
 			raise RuntimeError('Cannot specify both extranonce and dataid')
@@ -301,7 +303,7 @@ def _assemble_submission2(tmpl, data, extranonce, dataid, nonce, foreign):
 	elif extranonce and len(extranonce) == sizeof_workid:
 		# Avoid overlapping with blkmk_get_data use
 		extranonce += b'\0'
-	return _assemble_submission2_internal(tmpl, data, extranonce, nonce, foreign)
+	return _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign)
 
 def propose(tmpl, caps, foreign):
 	jreq = _request(caps)
@@ -320,8 +322,8 @@ def propose(tmpl, caps, foreign):
 	
 	return jreq
 
-def _submit(tmpl, data, extranonce, dataid, nonce, foreign):
-	blkhex = _assemble_submission2(tmpl, data, extranonce, dataid, nonce, foreign)
+def _submit(tmpl, data, extranonce, dataid, nonce, multiplier, foreign):
+	blkhex = _assemble_submission2(tmpl, data, extranonce, dataid, nonce, multiplier, foreign)
 	
 	info = {}
 	if (not getattr(tmpl, 'workid', None) is None) and not foreign:
@@ -336,14 +338,14 @@ def _submit(tmpl, data, extranonce, dataid, nonce, foreign):
 		]
 	}
 
-def submit(tmpl, data, dataid, nonce, foreign=False):
-	return _submit(tmpl, data, None, dataid, nonce, foreign)
+def submit(tmpl, data, dataid, nonce, multiplier, foreign=False):
+	return _submit(tmpl, data, None, dataid, nonce, multiplier, foreign)
 
-def submit_foreign(tmpl, data, dataid, nonce):
-	return _submit(tmpl, data, None, dataid, nonce, True)
+def submit_foreign(tmpl, data, dataid, nonce, multiplier):
+	return _submit(tmpl, data, None, dataid, nonce, multiplier, True)
 
-def submitm(tmpl, data, extranonce, nonce, foreign=False):
-	return _submit(tmpl, data, extranonce, None, nonce, foreign)
+def submitm(tmpl, data, extranonce, nonce, multiplier, foreign=False):
+	return _submit(tmpl, data, extranonce, None, nonce, multiplier, foreign)
 
 def address_to_script(addr):
 	addrbin = _base58.b58decode(addr, 25)
