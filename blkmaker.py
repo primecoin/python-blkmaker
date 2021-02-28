@@ -277,8 +277,10 @@ def _varintEncode(n):
 def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
 	data = data[:76]
 	data += _pack('!I', nonce)
-	numb = 32
-	data += _pack('<1s', numb.to_bytes(1, byteorder='little'))
+	numb = (1 + len(hex(multiplier))) // 2 - 1
+	if numb >= 253:
+		raise ValueError("multiplier too large")
+	data += _pack('B', numb)
 	data += _pack('<' + str(numb) + 's', multiplier.to_bytes(numb, byteorder='little'))
 	if foreign or ('submit/truncate' not in tmpl.mutations or extranonce):
 		data += _varintEncode(1 + len(tmpl.txns))
