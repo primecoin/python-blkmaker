@@ -277,16 +277,16 @@ def _varintEncode(n):
 
 def _serialize_bitcoin_compact_size(size):
 	if size < 253:
-		data = _pack('B', numbyte)
+		data = _pack('B', size)
 	elif size <= 0xffff:
 		data = _pack('B', 253)
-		data += _pack('<H', numbyte)
+		data += _pack('<H', size)
 	elif size <= 0xffffffff:
 		data = _pack('B', 254)
-		data += _pack('<I', numbyte)
+		data += _pack('<I', size)
 	else:
 		data = _pack('B', 255)
-		data += _pack('<Q', numbyte)
+		data += _pack('<Q', size)
 	return data
 
 def _serialize_primecoin_multiplier(multiplier):
