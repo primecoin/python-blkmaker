@@ -10,6 +10,7 @@ from binascii import b2a_hex as _b2a_hex
 from hashlib import sha256 as _sha256
 from struct import pack as _pack
 from time import time as _time
+from math import ceil
 
 from .blktemplate import _Transaction, request as _request
 
@@ -277,7 +278,7 @@ def _varintEncode(n):
 def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
 	data = data[:76]
 	data += _pack('!I', nonce)
-	numb = (1 + len(hex(multiplier))) // 2 - 1
+	numb = ceil(len(hex(multiplier).lstrip('0x')) / 2)
 	if numb < 253:
 		bytelen = 1
 	elif numb <= 0xffff:
