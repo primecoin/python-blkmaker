@@ -292,7 +292,7 @@ def _serialize_bitcoin_compact_size(size):
 def _serialize_primecoin_multiplier(multiplier):
 	size = ceil(len(hex(multiplier).lstrip('0x')) / 2)
 	data = _serialize_bitcoin_compact_size(size)
-	data += _pack('<' + str(size) + 's', multiplier.to_bytes(size, byteorder='little'))
+	data += _pack(f'<{size}s', multiplier.to_bytes(size, byteorder='little'))
 	return data
 
 def _assemble_submission2_internal(tmpl, data, extranonce, nonce, multiplier, foreign):
