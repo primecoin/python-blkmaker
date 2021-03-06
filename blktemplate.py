@@ -158,6 +158,3 @@ class Template:
 		self._time_rcvd = time_rcvd;
 		
 		return True
-
-	def update_coinbasetxn(self, addr):
-		self.init_generation(_blkmaker.address_to_script(addr))
