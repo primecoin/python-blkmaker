@@ -139,6 +139,8 @@ class Template:
 		
 		if 'coinbasetxn' in json:
 			self.cbtxn = _Transaction(json['coinbasetxn'])
+		else:
+			self.cbtxn = _Transaction({'data': '00'})
 		
 		if 'coinbaseaux' in json:
 			for aux in json['coinbaseaux']:

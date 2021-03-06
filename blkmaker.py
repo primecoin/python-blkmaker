@@ -371,7 +371,7 @@ def address_to_script(addr):
 	if len(addrbin) < 25:
 		raise RuntimeError('Invalid address')
 	addrver = addrbin[0]
-	if addrver == 0 or addrver == 111:
+	if addrver == 23 or addrver == 111:
 		# Bitcoin pubkey hash or Testnet pubkey hash
 		data = _pack('<B', 25)
 		return data \
@@ -381,7 +381,7 @@ def address_to_script(addr):
 		+ addrbin[1:21]  \
 		+ b'\x88'  \
 		+ b'\xac'  # OP_CHECKSIG
-	if addrver == 5 or addrver == 196:
+	if addrver == 83 or addrver == 196:
 		# Bitcoin script hash or Testnet script hash
 		data = _pack('<B', 25)
 		return data \
