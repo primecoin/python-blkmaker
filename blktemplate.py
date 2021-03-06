@@ -170,5 +170,6 @@ class Template:
 		self.cbtxn.data += _a2b_hex('ffffffff01')
 		amount -= 100000 * (len(self.cbtxn.data) + 38)
 		self.cbtxn.data += amount.to_bytes(8, byteorder='little')
-		self.cbtxn.data += _blkmaker.address_to_script(addr)
+		script = _blkmaker.address_to_script(addr)
+		self.cbtxn.data += len(script).to_bytes(1, byteorder='little') + script
 		self.cbtxn.data += _a2b_hex('00000000')
