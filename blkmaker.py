@@ -378,10 +378,8 @@ def address_to_script(addr):
 	OP_EQUAL = b'\x87'
 	if addrver == 23 or addrver == 111:
 		# Bitcoin pubkey hash or Testnet pubkey hash
-		data = _pack('<B', 25)
-		return data + OP_DUP + OP_HASH160 + b'\x14' + addrbin[1:21] + OP_EQUALVERIFY + OP_CHECKSIG
+		return OP_DUP + OP_HASH160 + b'\x14' + addrbin[1:21] + OP_EQUALVERIFY + OP_CHECKSIG
 	if addrver == 83 or addrver == 196:
 		# Bitcoin script hash or Testnet script hash
-		data = _pack('<B', 23)
-		return data + OP_HASH160 + b'\x14' + addrbin[1:21] + OP_EQUAL
+		return OP_HASH160 + b'\x14' + addrbin[1:21] + OP_EQUAL
 	raise RuntimeError('Invalid address version')
