@@ -166,6 +166,7 @@ class Template:
 		self.cbtxn.data += len(coinbasedata).to_bytes(1, byteorder='little')
 		self.cbtxn.data += coinbasedata
 		self.cbtxn.data += _a2b_hex('ffffffff01')
+		amount -= 100000 * (len(self.cbtxn.data) + 38)
 		self.cbtxn.data += amount.to_bytes(8, byteorder='little')
 		self.cbtxn.data += _blkmaker.address_to_script(addr)
 		self.cbtxn.data += _a2b_hex('00000000')
