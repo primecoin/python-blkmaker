@@ -139,8 +139,6 @@ class Template:
 		
 		if 'coinbasetxn' in json:
 			self.cbtxn = _Transaction(json['coinbasetxn'])
-		else:
-			self.cbtxn = _Transaction({'data': '00'})
 		
 		if 'coinbaseaux' in json:
 			for aux in json['coinbaseaux']:
@@ -161,15 +159,5 @@ class Template:
 		
 		return True
 
-	def update_coinbasetxn(self, addr, amount):
-		self.cbtxn.data = _a2b_hex('01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff')
-		coinbasedata = _blkmaker._serialize_primecoin_multiplier(self.height)
-		coinbasedata += _a2b_hex('66726f6d20626c6b6d616b6572')
-		self.cbtxn.data += len(coinbasedata).to_bytes(1, byteorder='little')
-		self.cbtxn.data += coinbasedata
-		self.cbtxn.data += _a2b_hex('ffffffff01')
-		amount -= 100000 * (len(self.cbtxn.data) + 38)
-		self.cbtxn.data += amount.to_bytes(8, byteorder='little')
-		script = _blkmaker.address_to_script(addr)
-		self.cbtxn.data += len(script).to_bytes(1, byteorder='little') + script
-		self.cbtxn.data += _a2b_hex('00000000')
+	def update_coinbasetxn(self, addr):
+		self.init_generation(_blkmaker.address_to_script(addr))
