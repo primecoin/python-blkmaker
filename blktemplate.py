@@ -158,3 +158,14 @@ class Template:
 		self._time_rcvd = time_rcvd;
 		
 		return True
+
+	def update_coinbasetxn(self, addr, amount):
+		self.cbtxn.data = _a2b_hex('01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff')
+		coinbasedata = _blkmaker._serialize_primecoin_multiplier(self.height)
+		coinbasedata += _a2b_hex('66726f6d20626c6b6d616b6572')
+		self.cbtxn.data += len(coinbasedata).to_bytes(1, byteorder='little')
+		self.cbtxn.data += coinbasedata
+		self.cbtxn.data += _a2b_hex('ffffffff01')
+		self.cbtxn.data += amount.to_bytes(8, byteorder='little')
+		self.cbtxn.data += _blkmaker.address_to_script(addr)
+		self.cbtxn.data += _a2b_hex('00000000')

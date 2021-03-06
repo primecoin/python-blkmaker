@@ -367,24 +367,26 @@ def submitm(tmpl, data, extranonce, nonce, multiplier, foreign=False):
 	return _submit(tmpl, data, extranonce, None, nonce, multiplier, foreign)
 
 def address_to_script(addr):
-	addrbin = _base58.b58decode(addr, 25)
-	if addrbin is None:
+	addrbin = _base58.b58decode(addr)
+	if len(addrbin) < 25:
 		raise RuntimeError('Invalid address')
-	addrver = _base58.get_bcaddress_version(addr)
+	addrver = addrbin[0]
 	if addrver == 0 or addrver == 111:
 		# Bitcoin pubkey hash or Testnet pubkey hash
-		return b''
-		+ b'\x76'  # OP_DUP
-		+ b'\xa9'  # OP_HASH160
-		+ b'\x14'  # push 20 bytes
-		+ addrbin
-		+ b'\x88'  # OP_EQUALVERIFY
+		data = _pack('<B', 25)
+		return data \
+		+ b'\x76'  \
+		+ b'\xa9'  \
+		+ b'\x14'  \
+		+ addrbin[1:21]  \
+		+ b'\x88'  \
 		+ b'\xac'  # OP_CHECKSIG
 	if addrver == 5 or addrver == 196:
 		# Bitcoin script hash or Testnet script hash
-		return b''
-		+ b'\xa9'  # OP_HASH160
-		+ b'\x14'  # push 20 bytes
-		+ addrbin
+		data = _pack('<B', 25)
+		return data \
+		+ b'\xa9'  \
+		+ b'\x14'  \
+		+ addrbin[1:21]  \
 		+ b'\x87'  # OP_EQUAL
 	raise RuntimeError('Invalid address version')
