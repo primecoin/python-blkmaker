@@ -114,6 +114,8 @@ class Template:
 		self.sigoplimit = json.get('sigoplimit', self.sigoplimit)
 		self.sizelimit = json.get('sizelimit', self.sizelimit)
 		self.version = json['version']
+		if self.version >> 28 & 0x0E:
+			self.version = self.version >> 28
 		
 		self.cbvalue = json.get('coinbasevalue', None)
 		self.workid = json.get('workid', None)
