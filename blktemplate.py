@@ -114,8 +114,6 @@ class Template:
 		self.sigoplimit = json.get('sigoplimit', self.sigoplimit)
 		self.sizelimit = json.get('sizelimit', self.sizelimit)
 		self.version = json['version']
-		if self.version >> 28 & 0x0E:
-			self.version = self.version >> 28
 		
 		self.cbvalue = json.get('coinbasevalue', None)
 		self.workid = json.get('workid', None)
@@ -151,7 +149,10 @@ class Template:
 		
 		self.mutations = set(json.get('mutable', ()))
 		
-		if (self.version > _blkmaker.MAX_BLOCK_VERSION or (self.version >= 2 and not self.height)):
+		version = self.version
+		if version >> 28 & 0x0E:
+			version = version >> 28
+		if (version > _blkmaker.MAX_BLOCK_VERSION or (self.version >= 2 and not self.height)):
 			if 'version/reduce' in self.mutations:
 				self.version = _blkmaker.MAX_BLOCK_VERSION if self.height else 1
 			elif 'version/force' not in self.mutations:
